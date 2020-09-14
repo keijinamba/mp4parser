@@ -113,6 +113,12 @@ public abstract class AbstractBoxParser implements BoxParser {
         // System.out.println("parsing " + Mp4Arrays.toString(box.getType()) + " " + box.getClass().getName() + " size=" + size);
         ((Buffer)header.get()).rewind();
 
+        if (contentSize > Runtime.getRuntime().maxMemory()) {
+            long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            long maxFreeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+            contentSize = Math.min(contentSize, maxFreeMemory / 2L);
+        }
+
         parsableBox.parse(byteChannel, header.get(), contentSize, this);
         return parsableBox;
     }
